@@ -22,6 +22,8 @@ class CConfg:
     def __init__(self, name):
         self._name = name
         self._db = ""
+        self._start = ""
+        self._end = ""
 
         # 读取配置文件
         cfg = configparser.ConfigParser()
@@ -30,10 +32,24 @@ class CConfg:
             raise Exception('配置文件不存在，请检查后重启!')
 
         self._db = cfg.get('GLOBAL', 'db')
+        try:
+            self._start = cfg.get('SCHEDULE', 'start')
+            self._end = cfg.get('SCHEDULE', 'end')
+            logger.info("计划任务{}~{}".format(self._start, self._end))
+        except:
+            logger.info('未配置计划任务')
 
     @property
     def db(self):
         return self._db
+
+    @property
+    def start(self):
+        return self._start
+
+    @property
+    def end(self):
+        return self._end
 
 
 cConfg = CConfg('config.ini')
@@ -383,7 +399,7 @@ class CcgpSpider:
 
         price = float(m.group(2).strip()) if m.group(2) and m.group(2).strip() else 0.0
 
-        if m.group(4) and not '万' in m.group(4):
+        if m.group(4) and not '万元' in m.group(4):
             price = price / 10000
         # print(price)
         return price
@@ -487,8 +503,12 @@ def test_0_price_recycle(spider):
 
 
 if __name__ == '__main__':
+
     start = date.today() + timedelta(days=-1)
     end = date.today() + timedelta(days=-1)
+
+    start = datetime.strptime(cConfg.start, "%Y-%m-%d")
+    end = datetime.strptime(cConfg.end, "%Y-%m-%d")
 
     # start = datetime(2020, 12, 7)
     # end = datetime(2020, 12, 7)
