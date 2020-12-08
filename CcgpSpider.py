@@ -3,10 +3,9 @@
 
 import requests
 from Logger import logger
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Text, DateTime, DECIMAL, Table, MetaData, UniqueConstraint, ForeignKey
 from sqlalchemy.dialects.mysql import LONGTEXT
 from datetime import datetime
@@ -18,10 +17,29 @@ from sqlalchemy.dialects.mysql import insert
 import time
 import random
 import re
-import pymysql
+import configparser
 
-engine = create_engine("mysql+pymysql://root:111111@localhost/ccgpdb",
-                       encoding='utf-8', echo=True)
+
+class CConfg:
+    def __init__(self, name):
+        self._name = name
+        self._db = ""
+
+        # 读取配置文件
+        cfg = configparser.ConfigParser()
+        filename = cfg.read(filenames=self._name)
+        if not filename:
+            raise Exception('配置文件不存在，请检查后重启!')
+
+        self._db = cfg.get('GLOBAL', 'db')
+
+    @property
+    def db(self):
+        return self._db
+
+
+cConfg = CConfg('config.ini')
+engine = create_engine(cConfg.db, encoding='utf-8', echo=True)
 conn = engine.connect()
 
 metadata = MetaData()
@@ -432,8 +450,10 @@ def test_bid_contents(spider):
     # test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202003/t20200330_14082485.htm') # 总中标金额：45.7 万元（人民币）
     # test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202006/t20200618_14501754.htm') # 中标金额：23912800元
     # test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/gkzb/202007/t20200717_14674164.htm') # 预算金额：4872.75 万元（人民币）  最高限价（如有）：2769.3249 万元（人民币）
-    test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202005/t20200513_14286828.htm')  # 中标金额：16278800元  含万达信息
-    test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202006/t20200629_14562999.htm') # 中标金额：11000000元,  含万达信息
+    test_bid_content(spider,
+                     'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202005/t20200513_14286828.htm')  # 中标金额：16278800元  含万达信息
+    test_bid_content(spider,
+                     'http://www.ccgp.gov.cn/cggg/dfgg/zbgg/202006/t20200629_14562999.htm')  # 中标金额：11000000元,  含万达信息
     # test_bid_content(spider, 'http://www.ccgp.gov.cn/cggg/dfgg/gkzb/202008/t20200819_14865129.htm')
     # test_bid_content(spider,'http://www.ccgp.gov.cn/cggg/dfgg/gkzb/202008/t20200820_14871972.htm')
     # test_bid_content(spider,'http://www.ccgp.gov.cn/cggg/dfgg/gkzb/202008/t20200825_14899044.htm')
@@ -469,7 +489,6 @@ def test_0_price_recycle(spider):
 
 
 if __name__ == '__main__':
-
     start = date.today()
     end = date.today()
 
@@ -479,7 +498,7 @@ if __name__ == '__main__':
     spider = CcgpSpider(start, end)
     spider.get_all()
 
-    #test_bid_contents(spider)
+    # test_bid_contents(spider)
 
     # test_sync_log(spider)
 
