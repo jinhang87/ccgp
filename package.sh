@@ -1,0 +1,1 @@
+pyinstaller -F  Logger.py CcgpSpider.py -n 'ccgp'
