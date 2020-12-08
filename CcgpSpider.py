@@ -8,10 +8,8 @@ from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, Text, DateTime, DECIMAL, Table, MetaData, UniqueConstraint, ForeignKey
 from sqlalchemy.dialects.mysql import LONGTEXT
-from datetime import datetime
-from datetime import date
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import mapper
+from datetime import datetime, date, timedelta
+from sqlalchemy.orm import sessionmaker, mapper
 from sqlalchemy import UniqueConstraint
 from sqlalchemy.dialects.mysql import insert
 import time
@@ -489,8 +487,8 @@ def test_0_price_recycle(spider):
 
 
 if __name__ == '__main__':
-    start = date.today()
-    end = date.today()
+    start = date.today() + timedelta(days=-1)
+    end = date.today() + timedelta(days=-1)
 
     # start = datetime(2020, 12, 7)
     # end = datetime(2020, 12, 7)
