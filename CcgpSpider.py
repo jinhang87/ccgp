@@ -504,14 +504,14 @@ def test_0_price_recycle(spider):
 
 if __name__ == '__main__':
 
-    start = date.today() + timedelta(days=-1)
-    end = date.today() + timedelta(days=-1)
-
-    start = datetime.strptime(cConfg.start, "%Y-%m-%d")
-    end = datetime.strptime(cConfg.end, "%Y-%m-%d")
-
-    # start = datetime(2020, 12, 7)
-    # end = datetime(2020, 12, 7)
+    if cConfg.start != "" and cConfg.end != "":
+        start = datetime.strptime(cConfg.start, "%Y-%m-%d")
+        end = datetime.strptime(cConfg.end, "%Y-%m-%d")
+    else:
+        start = date.today() + timedelta(days=-1)
+        end = date.today() + timedelta(days=-1)
+        # start = datetime(2020, 12, 7)
+        # end = datetime(2020, 12, 7)
 
     spider = CcgpSpider(start, end)
     spider.get_all()
