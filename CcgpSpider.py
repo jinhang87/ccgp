@@ -211,7 +211,7 @@ class CcgpSpider:
         self.total = 10  # 每页记录数
         self.cur_page = 0  # 当前读取页数
         self.total_page = 1  # 总页数
-        self.wait = 1  # 等待时间
+        self.wait = 4  # 等待时间
         self.timeout = 10  # 超时时间
 
         self.set_sync_log()
