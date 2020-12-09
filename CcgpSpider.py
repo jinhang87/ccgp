@@ -211,7 +211,7 @@ class CcgpSpider:
         self.total = 10  # 每页记录数
         self.cur_page = 0  # 当前读取页数
         self.total_page = 1  # 总页数
-        self.wait = 10  # 等待时间
+        self.wait = 1  # 等待时间
         self.timeout = 10  # 超时时间
 
         self.set_sync_log()
@@ -261,14 +261,19 @@ class CcgpSpider:
 
     def get_all(self):
         while self.cur_page < self.total_page:
-            self.cur_page += 1
-            self.get_one(self.cur_page)
-            wait = random.random() * self.wait
-            time.sleep(wait)
-            logger.info(
-                '读取记录{}/{}, 读取页数{}/{} 等待{}秒后读取'.format(self.cur, self.total, self.cur_page, self.total_page, wait))
-            sync_log = SyncLog(self.start, self.end, self.cur_page, self.total_page, self.cur, self.total)
-            sync_log_upsert(sync_log)
+            try:
+                self.get_one(self.cur_page)
+                wait = random.random() * self.wait
+                logger.info(
+                    '读取记录{}/{}, 读取页数{}/{} 等待{}秒后读取'.format(self.cur, self.total, self.cur_page, self.total_page, wait))
+                sync_log = SyncLog(self.start, self.end, self.cur_page, self.total_page, self.cur, self.total)
+                sync_log_upsert(sync_log)
+                self.cur_page += 1
+            except:
+                wait = 3 * self.wait
+                logger.info('第{}页,第{}条错误，等待{}秒后重试'.format(self.cur_page, self.cur, wait))
+            finally:
+                time.sleep(wait)
         else:
             logger.info('获取结束')
 
@@ -388,7 +393,7 @@ class CcgpSpider:
         # str_regexp = r'({})(\s*\d*(\.\d+)?\s*)(.\S*)'.format(str_head)
         str_regexp = r'({})(\s*\d*(\.\d+)?\s*)(.\S*)'.format(str_head)
 
-        print(str_regexp)
+        #print(str_regexp)
         p = re.compile(str_regexp)
         m = p.search(text)
         # print(m)
